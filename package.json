@@ -1,0 +1,31 @@
+{
+  "name": "smart-case",
+  "version": "0.0.1",
+  "description": "JavaScript library that provides advanced string casing capabilities with intelligent capitalization handling. It offers a comprehensive set of features to convert strings to various casing styles, including title case, sentence case, camel case, snake case, and kebab case, while ensuring consistent capitalization",
+  "main": "./src/index.js",
+  "scripts": {
+    "lint": "eslint . --ext .ts",
+    "test": "jest",
+    "build": "rimraf ./build && tsc",
+    "prepare": "husky install"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Nan0ck/smart-case"
+  },
+  "author": "nan0ck",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/jest": "^29.5.2",
+    "@types/node": "^20.3.1",
+    "@typescript-eslint/eslint-plugin": "^5.59.11",
+    "@typescript-eslint/parser": "^5.59.11",
+    "eslint": "^8.42.0",
+    "husky": "^8.0.3",
+    "jest": "^29.5.0",
+    "rimraf": "^5.0.1",
+    "ts-jest": "^29.1.0",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.1.3"
+  }
+}
