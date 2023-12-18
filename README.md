@@ -16,7 +16,6 @@ SmartCase is a JavaScript library that provides intelligent string casing and ca
 - **Constant Case:** Convert strings to constant case.
 - **Dot Case:** Convert strings to dot case.
 - **Path Case:** Convert strings to path case.
-- **Smart Case:** Unique smart case that handles special cases and exceptions intelligently.
 
 ### Custom rules for each case
 
@@ -49,7 +48,7 @@ console.log(titleCase("hello world", customTitleCaseRules)); // Output: "Hello W
 
 // Using custom rules for constant case
 const customConstantCaseRules = {
-  wordsToAlwaysLowerCase: ['world']
+  wordsToAlwaysLowerCase: ["world"],
 };
 console.log(constantCase("hello world", customConstantCaseRules)); // Output: "HELLO_world"
 ```

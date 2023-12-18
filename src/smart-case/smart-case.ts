@@ -1,25 +1,4 @@
-import { inputString, outputString, customRules } from "./smart-case.types";
-
-const applyCustomRules = (
-  word: inputString, // single word
-  customRules: customRules
-): outputString | undefined => {
-  const {
-    wordsToAlwaysCapitalize,
-    wordsToAlwaysLowerCase,
-    wordsToAlwaysUpperCase,
-    wordsToNeverCapitalize,
-    wordsToNeverLowerCase,
-    wordsToNeverUpperCase,
-  } = customRules;
-  if (wordsToAlwaysCapitalize?.includes(word)) return word[0].toUpperCase() + word.slice(1).toLowerCase();
-  if (wordsToAlwaysLowerCase?.includes(word)) return word.toLowerCase();
-  if (wordsToAlwaysUpperCase?.includes(word)) return word.toUpperCase();
-  if (wordsToNeverCapitalize?.includes(word)) return word.toLowerCase();
-  if (wordsToNeverLowerCase?.includes(word)) return word.toUpperCase();
-  if (wordsToNeverUpperCase?.includes(word)) return word.toLowerCase();
-  return undefined;
-};
+import { customRules, customRulesSet } from "./smart-case.types";
 
 /**
  * Converts a string to title case.
@@ -31,22 +10,22 @@ const applyCustomRules = (
  * titleCase("hello world", { wordsToAlwaysUpperCase:  ["world"] }); // "Hello WORLD"
  */
 export const titleCase = (
-  inputString: inputString,
+  inputString: string,
   customRules?: customRules
-): outputString => {
-  const outputString = inputString
-    .split(" ")
-    .map((word) => {
-      if (customRules) {
-        const newWord = applyCustomRules(word, customRules);
-        if (newWord) return newWord;
-      }
-      return word[0].toUpperCase() + word.slice(1).toLowerCase();
-    })
-    .join("");
-  return outputString;
-};
+): string => {
+  const transformWord = (
+    word: string,
+    _: number,
+    rulesAsSets?: customRulesSet
+  ): string => {
+    const newWord = rulesAsSets
+      ? applyCustomRules(word, rulesAsSets)
+      : undefined;
+    return newWord ?? word[0].toUpperCase() + word.slice(1).toLowerCase();
+  };
 
+  return applyRulesAndJoin(inputString, transformWord, " ", customRules);
+};
 /**
  * Converts a string to sentence case.
  * @param inputString - The string to convert.
@@ -58,20 +37,33 @@ export const titleCase = (
  * sentenceCase("hello world", { wordsToAlwaysLowerCase:  ["hello"] }); // "hello world"
  */
 export const sentenceCase = (
-  inputString: inputString,
+  inputString: string,
   customRules?: customRules
-): outputString => {
-  let outputString = inputString[0].toUpperCase() + inputString.slice(1);
-  if (!customRules) return outputString;
-  outputString = outputString
-    .split(" ")
-    .map((word) => {
-      const newWord = applyCustomRules(word, customRules);
-      if (newWord) return newWord;
-      return word;
-    })
-    .join(" ");
-  return outputString;
+): string => {
+  if (!inputString) return ""; // Handle empty string
+
+  const transformWord = (
+    word: string,
+    index: number,
+    rulesAsSets?: customRulesSet
+  ): string => {
+    if (index === 0) {
+      const newWord = rulesAsSets
+        ? applyCustomRules(word.toLowerCase(), rulesAsSets)
+        : undefined;
+      return (
+        (newWord ?? word).charAt(0).toUpperCase() +
+        (newWord ?? word).slice(1).toLowerCase()
+      );
+    } else {
+      const newWord = rulesAsSets
+        ? applyCustomRules(word.toLowerCase(), rulesAsSets)
+        : word.toLowerCase();
+      return newWord ?? word;
+    }
+  };
+
+  return applyRulesAndJoin(inputString, transformWord, " ", customRules);
 };
 
 /**
@@ -84,22 +76,23 @@ export const sentenceCase = (
  * camelCase("hello world", { wordsToAlwaysUpperCase:  ["world"] }); // "helloWORLD"
  */
 export const camelCase = (
-  inputString: inputString,
+  inputString: string,
   customRules?: customRules
-): outputString => {
-  const outputString = inputString
-    .split(" ")
-    .map((word, index) => {
-      if (customRules) {
-        const newWord = applyCustomRules(word, customRules);
-        if (newWord) return newWord;
-      }
-      return index === 0
-        ? word.toLowerCase()
-        : word[0].toUpperCase() + word.slice(1);
-    })
-    .join("");
-  return outputString;
+): string => {
+  const transformWord = (
+    word: string,
+    index: number,
+    rulesAsSets?: customRulesSet
+  ): string => {
+    const newWord = rulesAsSets
+      ? applyCustomRules(word, rulesAsSets)
+      : undefined;
+    return index === 0
+      ? word.toLowerCase()
+      : newWord ?? word[0].toUpperCase() + word.slice(1).toLowerCase();
+  };
+
+  return applyRulesAndJoin(inputString, transformWord, "", customRules);
 };
 
 /**
@@ -112,22 +105,22 @@ export const camelCase = (
  * pascalCase("hello world", { wordsToAlwaysUpperCase:  ["world"] }); // "HelloWORLD"
  */
 export const pascalCase = (
-  inputString: inputString,
+  inputString: string,
   customRules?: customRules
-): outputString => {
-  const outputString = inputString
-    .split(" ")
-    .map((word) => {
-      if (customRules) {
-        const newWord = applyCustomRules(word, customRules);
-        if (newWord) return newWord;
-      }
-      return word[0].toUpperCase() + word.slice(1);
-    })
-    .join("");
-  return outputString;
-};
+): string => {
+  const transformWord = (
+    word: string,
+    _: number,
+    rulesAsSets?: customRulesSet
+  ): string => {
+    const newWord = rulesAsSets
+      ? applyCustomRules(word, rulesAsSets)
+      : undefined;
+    return newWord ?? word[0].toUpperCase() + word.slice(1).toLowerCase();
+  };
 
+  return applyRulesAndJoin(inputString, transformWord, "", customRules);
+};
 /**
  * Converts a string to snake case.
  * @param inputString - The string to convert.
@@ -138,20 +131,21 @@ export const pascalCase = (
  * snakeCase("hello world", { wordsToAlwaysUpperCase:  ["world"] }); // "hello_WORLD"
  */
 export const snakeCase = (
-  inputString: inputString,
+  inputString: string,
   customRules?: customRules
-): outputString => {
-  const outputString = inputString
-    .split(" ")
-    .map((word) => {
-      if (customRules) {
-        const newWord = applyCustomRules(word, customRules);
-        if (newWord) return newWord;
-      }
-      return word.toLowerCase();
-    })
-    .join("_");
-  return outputString;
+): string => {
+  const transformWord = (
+    word: string,
+    _: number,
+    rulesAsSets?: customRulesSet
+  ): string => {
+    const newWord = rulesAsSets
+      ? applyCustomRules(word, rulesAsSets)
+      : undefined;
+    return newWord ?? word.toLowerCase();
+  };
+
+  return applyRulesAndJoin(inputString, transformWord, "_", customRules);
 };
 
 /**
@@ -164,20 +158,21 @@ export const snakeCase = (
  * kebabCase("hello world", { wordsToAlwaysUpperCase:  ["world"] }); // "hello-WORLD"
  */
 export const kebabCase = (
-  inputString: inputString,
+  inputString: string,
   customRules?: customRules
-): outputString => {
-  const outputString = inputString
-    .split(" ")
-    .map((word) => {
-      if (customRules) {
-        const newWord = applyCustomRules(word, customRules);
-        if (newWord) return newWord;
-      }
-      return word.toLowerCase();
-    })
-    .join("-");
-  return outputString;
+): string => {
+  const transformWord = (
+    word: string,
+    _: number,
+    rulesAsSets?: customRulesSet
+  ): string => {
+    const newWord = rulesAsSets
+      ? applyCustomRules(word, rulesAsSets)
+      : undefined;
+    return newWord ?? word.toLowerCase();
+  };
+
+  return applyRulesAndJoin(inputString, transformWord, "-", customRules);
 };
 
 /**
@@ -190,20 +185,21 @@ export const kebabCase = (
  * constantCase("hello world", { wordsToAlwaysUpperCase:  ["world"] }); // "HELLO_WORLD"
  */
 export const constantCase = (
-  inputString: inputString,
+  inputString: string,
   customRules?: customRules
-): outputString => {
-  const outputString = inputString
-    .split(" ")
-    .map((word) => {
-      if (customRules) {
-        const newWord = applyCustomRules(word, customRules);
-        if (newWord) return newWord;
-      }
-      return word.toUpperCase();
-    })
-    .join("_");
-  return outputString;
+): string => {
+  const transformWord = (
+    word: string,
+    _: number,
+    rulesAsSets?: customRulesSet
+  ): string => {
+    const newWord = rulesAsSets
+      ? applyCustomRules(word, rulesAsSets)
+      : undefined;
+    return newWord ?? word.toUpperCase();
+  };
+
+  return applyRulesAndJoin(inputString, transformWord, "_", customRules);
 };
 
 /**
@@ -216,22 +212,22 @@ export const constantCase = (
  * dotCase("hello world", { wordsToAlwaysUpperCase:  ["world"] }); // "hello.WORLD"
  */
 export const dotCase = (
-  inputString: inputString,
+  inputString: string,
   customRules?: customRules
-): outputString => {
-  const outputString = inputString
-    .split(" ")
-    .map((word) => {
-      if (customRules) {
-        const newWord = applyCustomRules(word, customRules);
-        if (newWord) return newWord;
-      }
-      return word.toLowerCase();
-    })
-    .join(".");
-  return outputString;
-};
+): string => {
+  const transformWord = (
+    word: string,
+    _: number,
+    rulesAsSets?: customRulesSet
+  ): string => {
+    const newWord = rulesAsSets
+      ? applyCustomRules(word, rulesAsSets)
+      : undefined;
+    return newWord ?? word.toLowerCase();
+  };
 
+  return applyRulesAndJoin(inputString, transformWord, ".", customRules);
+};
 /**
  * Converts a string to path case.
  * @param inputString - The string to convert.
@@ -242,46 +238,69 @@ export const dotCase = (
  * pathCase("hello world", { wordsToAlwaysUpperCase:  ["world"] }); // "hello/WORLD"
  */
 export const pathCase = (
-  inputString: inputString,
+  inputString: string,
   customRules?: customRules
-): outputString => {
-  const outputString = inputString
-    .split(" ")
-    .map((word) => {
-      if (customRules) {
-        const newWord = applyCustomRules(word, customRules);
-        if (newWord) return newWord;
-      }
-      return word.toLowerCase();
-    })
-    .join("/");
-  return outputString;
+): string => {
+  const transformWord = (
+    word: string,
+    _: number,
+    rulesAsSets?: customRulesSet
+  ): string => {
+    const newWord = rulesAsSets
+      ? applyCustomRules(word, rulesAsSets)
+      : undefined;
+    return newWord ?? word.toLowerCase();
+  };
+
+  return applyRulesAndJoin(inputString, transformWord, "/", customRules);
 };
 
-/**
- * Converts a string to smart case.
- * @param inputString - The string to convert.
- * @returns The smart case string.
- * @example
- * smartCase("hello world"); // "Hello World"
- * smartCase("HELLO WORLD"); // "HELLO WORLD"
- * smartCase("helloWorld"); // "Hello World"
- * smartCase("hello world", { wordsToAlwaysUpperCase:  ["world"] }); // "Hello WORLD"
- *
- */
-export const smartCase = (
-  inputString: inputString,
+const applyCustomRules = (
+  word: string,
+  customRules: customRulesSet
+): string | undefined => {
+  const {
+    wordsToAlwaysCapitalize,
+    wordsToAlwaysLowerCase,
+    wordsToAlwaysUpperCase,
+    wordsToNeverTransform,
+  } = customRules;
+
+  if (wordsToAlwaysCapitalize?.has(word))
+    return `${word[0].toUpperCase()}${word.slice(1).toLowerCase()}`;
+  if (wordsToAlwaysLowerCase?.has(word)) return word.toLowerCase();
+  if (wordsToAlwaysUpperCase?.has(word)) return word.toUpperCase();
+  if (wordsToNeverTransform?.has(word)) return word;
+
+  return undefined;
+};
+
+const convertRulesToSets = (
+  customRulesAsArray: customRules
+): customRulesSet => {
+  const rulesWithSets: customRulesSet = {};
+  Object.keys(customRulesAsArray).forEach((key) => {
+    rulesWithSets[key as keyof customRules] = new Set(
+      customRulesAsArray[key as keyof customRules]
+    );
+  });
+  return rulesWithSets;
+};
+
+const applyRulesAndJoin = (
+  inputString: string,
+  transform: (
+    word: string,
+    index: number,
+    rulesAsSets?: customRulesSet
+  ) => string,
+  delimiter: string,
   customRules?: customRules
-): outputString => {
-  const outputString = inputString
+): string => {
+  const rulesAsSets = customRules ? convertRulesToSets(customRules) : undefined;
+
+  return inputString
     .split(" ")
-    .map((word) => {
-      if (customRules) {
-        const newWord = applyCustomRules(word, customRules);
-        if (newWord) return newWord;
-      }
-      return word[0].toUpperCase() + word.slice(1);
-    })
-    .join(" ");
-  return outputString;
+    .map((word, index) => transform(word, index, rulesAsSets))
+    .join(delimiter);
 };

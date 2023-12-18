@@ -1,6 +1,6 @@
 {
   "name": "smart-case",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "JavaScript library that provides advanced string casing capabilities with intelligent capitalization handling. It offers a comprehensive set of features to convert strings to various casing styles, including title case, sentence case, camel case, snake case, and kebab case, while ensuring consistent capitalization",
   "source": "src/index.ts",
   "main": "./dist/cjs/index.js",
